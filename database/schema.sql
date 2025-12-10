@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     name VARCHAR(255) NULL,
     role ENUM('admin', 'editor') DEFAULT 'admin',
+    is_active TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP NULL,
     INDEX idx_email (email)
@@ -86,6 +87,6 @@ INSERT INTO innovation_stories (title, slug, summary, description, location, reg
 
 -- Create default admin user (password: admin123 - CHANGE THIS!)
 -- Password hash for 'admin123' using password_hash() PHP function
-INSERT INTO users (email, password_hash, name, role) VALUES
-('admin@jrsusa.org', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin User', 'admin');
+INSERT INTO users (email, password_hash, name, role, is_active) VALUES
+('admin@jrsusa.org', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin User', 'admin', 1);
 

@@ -9,8 +9,12 @@ window.authState = {
 };
 
 // API Base Path - use relative path for XAMPP compatibility
-const API_BASE = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-const API_URL = `${API_BASE}/api/auth.php`;
+function getApiUrl() {
+    const pathname = window.location.pathname;
+    const baseDir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+    return `${baseDir}api/auth.php`;
+}
+const API_URL = getApiUrl();
 
 // Initialize authentication (check if logged in)
 async function initializePHPAuth() {
