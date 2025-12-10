@@ -79,7 +79,9 @@ function sendError($message, $statusCode = 400) {
  * Check if user is authenticated
  */
 function isAuthenticated() {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     return isset($_SESSION['user_id']) && isset($_SESSION['user_email']);
 }
 

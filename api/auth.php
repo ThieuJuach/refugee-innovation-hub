@@ -16,17 +16,19 @@ switch ($method) {
         if ($action === 'login') {
             // Login
             $data = json_decode(file_get_contents('php://input'), true);
-            
+
             if (empty($data['email']) || empty($data['password'])) {
                 sendError('Email and password are required');
             }
-            
+
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
             $stmt->execute([$data['email']]);
             $user = $stmt->fetch();
-            
+
             if ($user && password_verify($data['password'], $user['password_hash'])) {
-                session_start();
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_name'] = $user['name'];
@@ -50,12 +52,16 @@ switch ($method) {
             }
         } elseif ($action === 'logout') {
             // Logout
-            session_start();
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
             session_destroy();
             sendResponse(['message' => 'Logout successful']);
         } elseif ($action === 'check') {
             // Check authentication status
-            session_start();
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
             if (isAuthenticated()) {
                 $stmt = $pdo->prepare("SELECT id, email, name, role FROM users WHERE id = ?");
                 $stmt->execute([$_SESSION['user_id']]);
