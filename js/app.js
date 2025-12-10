@@ -907,7 +907,7 @@ async function handleSubmitStory(event) {
 
     try {
         // Use fetch directly for FormData
-        const response = await fetch('api/submissions.php', {
+        const response = await fetch('http://localhost/refugee-innovation-hub/api/submissions.php', {
             method: 'POST',
             body: formData,
             credentials: 'same-origin'

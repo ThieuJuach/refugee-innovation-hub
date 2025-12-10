@@ -8,13 +8,7 @@ window.authState = {
     initialized: false
 };
 
-// API Base Path - use relative path for XAMPP compatibility
-function getApiUrl() {
-    const pathname = window.location.pathname;
-    const baseDir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-    return `${baseDir}api/auth.php`;
-}
-const API_URL = getApiUrl();
+const API_URL = 'http://localhost/refugee-innovation-hub/api/auth.php';
 
 // Initialize authentication (check if logged in)
 async function initializePHPAuth() {

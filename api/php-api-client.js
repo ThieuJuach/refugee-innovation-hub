@@ -6,8 +6,7 @@
  */
 
 class PHPAPIClient {
-    constructor(baseUrl = 'api') {
-        // default to relative 'api' folder so paths like "ProjectJRS1-main/index.html" work
+    constructor(baseUrl = 'http://localhost/refugee-innovation-hub/api') {
         this.baseUrl = baseUrl;
     }
 
