@@ -4,7 +4,7 @@
  * Handles story submission operations
  */
 
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 // Set JSON header only if not handling file upload
 if (!isset($_FILES['image'])) {
