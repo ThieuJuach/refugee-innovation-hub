@@ -938,7 +938,7 @@ async function handleApprove(id) {
 
     try {
         // Update submission status to approved (this will automatically create the story)
-        const { data, error } = await window.supabase.updateSubmissionStatus(id, 'approved');
+        const { data, error } = await window.api.updateSubmissionStatus(id, 'approved');
 
         if (error) {
             alert('Error approving submission: ' + error);
@@ -962,7 +962,7 @@ async function handleReject(id) {
     if (!confirm('Reject this submission?')) return;
 
     try {
-        const { data, error } = await window.supabase.updateSubmissionStatus(id, 'rejected');
+        const { data, error } = await window.api.updateSubmissionStatus(id, 'rejected');
 
         if (error) {
             alert('Error rejecting submission: ' + error);
@@ -981,7 +981,7 @@ async function handleDeleteStory(id, title) {
     if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) return;
 
     try {
-        const { data, error } = await window.supabase.deleteStory(id);
+        const { data, error } = await window.api.deleteStory(id);
 
         if (error) {
             alert('Error deleting story: ' + error);
@@ -1002,7 +1002,7 @@ window.handleDeleteStory = handleDeleteStory;
 // Load stories from database
 async function loadStories() {
     try {
-        const { data, error } = await window.supabase.getStories();
+        const { data, error } = await window.api.getStories();
 
         if (!error && data) {
             stories = data.map(story => ({
@@ -1115,7 +1115,7 @@ function getSampleStories() {
 // Load submissions from database
 async function loadSubmissions() {
     try {
-        const { data, error } = await window.supabase.getSubmissions('pending');
+        const { data, error } = await window.api.getSubmissions('pending');
 
         if (!error && data) {
             submissions = data;
@@ -1128,7 +1128,7 @@ async function loadSubmissions() {
 // Load dashboard stats
 async function loadDashboardStats() {
     try {
-        const { data, error } = await window.supabase.getStats();
+        const { data, error } = await window.api.getStats();
         
         if (!error && data) {
             return data;
@@ -1155,7 +1155,7 @@ async function trackAnalytics(eventType, metadata = {}) {
 
     // Track in PHP API
     try {
-        await window.supabase.trackAnalytics(eventType, {
+        await window.api.trackAnalytics(eventType, {
             ...metadata,
             story_id: metadata.story_id || null
         });

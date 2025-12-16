@@ -21,7 +21,7 @@ This guide provides instructions for JRS staff on how to manage content, review 
 3. Enter your admin email and password
 4. Click "Sign In"
 
-**Note:** Admin accounts must be created through Firebase Authentication console. Contact your system administrator if you need access.
+**Note:** Admin accounts are stored in the MySQL database. Contact your system administrator to create new admin accounts. See `database/add_admin_users.sql` for examples.
 
 ### Step 2: Access Dashboard
 After signing in, you'll see a "Dashboard" option in the navigation menu. Click it to access the admin panel.
@@ -66,14 +66,14 @@ Published stories appear in:
 
 ### Making a Story Featured
 To feature a story on the homepage:
-1. Access your Supabase dashboard
+1. Access phpMyAdmin at `http://localhost/phpmyadmin`
 2. Navigate to the `innovation_stories` table
 3. Find the story you want to feature
-4. Edit the record and set `is_featured` to `true`
+4. Edit the record and set `is_featured` to `1`
 5. Save the changes
 
 ### Updating Story Information
-1. Access Supabase dashboard
+1. Access phpMyAdmin at `http://localhost/phpmyadmin`
 2. Navigate to `innovation_stories` table
 3. Find and edit the story record
 4. Update any fields as needed:
@@ -86,7 +86,7 @@ To feature a story on the homepage:
 
 ### Adding Location Coordinates
 To display stories on the interactive map:
-1. Find the story in Supabase
+1. Access phpMyAdmin and find the story
 2. Add `latitude` and `longitude` values (decimal format)
 3. Example: Nairobi, Kenya = `-1.2921, 36.8219`
 
@@ -115,12 +115,17 @@ For detailed analytics:
    - Story views
    - Submission activity
 
-### Supabase Analytics
+### Database Analytics
 Analytics events are stored in the `site_analytics` table:
 - `page_view`: When users visit pages
 - `story_view`: When users view individual stories
 - `submission`: When users submit stories
 - `submission_approved`: When admins approve submissions
+
+**To view analytics data:**
+1. Access phpMyAdmin at `http://localhost/phpmyadmin`
+2. Navigate to `site_analytics` table
+3. Sort by `created_at` to see recent events
 
 ---
 
@@ -157,23 +162,23 @@ When reviewing submissions, ensure:
 
 ## Manual Content Updates (Alternative Method)
 
-If you prefer not to use the admin dashboard, you can manage content directly in Supabase:
+If you prefer not to use the admin dashboard, you can manage content directly through phpMyAdmin:
 
-### Using Supabase Dashboard
-1. Go to https://supabase.com/dashboard
-2. Sign in with your Supabase account
-3. Select your project
-4. Navigate to "Table Editor"
-5. Select the table you want to edit:
+### Using phpMyAdmin
+1. Go to `http://localhost/phpmyadmin`
+2. Select `refugee_innovation_hub` database
+3. Navigate to "Tables" view
+4. Select the table you want to edit:
    - `innovation_stories` - Published stories
    - `story_submissions` - Pending submissions
    - `site_analytics` - Analytics data
+   - `users` - Admin users
 
-### Using Google Sheets (Alternative)
-For teams without database access:
-1. Create a Google Sheet with story data
-2. Use Supabase's import feature or API
-3. Or manually copy data into Supabase dashboard
+### Bulk Updates via SQL
+For advanced users:
+1. Create SQL INSERT statements for multiple stories
+2. Execute via phpMyAdmin SQL tab
+3. Or use MySQL command line
 
 ---
 
@@ -197,7 +202,8 @@ For teams without database access:
 ### Analytics Not Tracking
 - Verify Google Analytics ID is correct in `index.html`
 - Check browser console for errors
-- Ensure Supabase connection is working
+- Ensure MySQL database connection is working
+- Check `site_analytics` table in phpMyAdmin
 
 ### Image Not Displaying
 - Verify image URL is accessible
@@ -209,14 +215,15 @@ For teams without database access:
 ## Support and Resources
 
 ### Technical Support
-- **Firebase Issues:** Check Firebase Console
-- **Supabase Issues:** Check Supabase Dashboard
+- **Database Issues:** Check phpMyAdmin and verify XAMPP services are running
+- **PHP Issues:** Check Apache error logs in XAMPP
 - **Code Issues:** Review browser console for errors
 
 ### Documentation
-- **Firebase Docs:** https://firebase.google.com/docs
-- **Supabase Docs:** https://supabase.com/docs
+- **PHP Docs:** https://www.php.net/docs.php
+- **MySQL Docs:** https://dev.mysql.com/doc/
 - **Leaflet.js Docs:** https://leafletjs.com/reference.html
+- **XAMPP Guide:** See XAMPP_SETUP.md
 
 ### Contact
 For additional support, contact:
@@ -241,9 +248,9 @@ For additional support, contact:
 
 ### Common Tasks
 1. **Approve submission:** Dashboard → Approve button
-2. **Feature story:** Supabase → Edit `is_featured` field
-3. **Add coordinates:** Supabase → Add `latitude`/`longitude`
-4. **View analytics:** Dashboard stats or Google Analytics
+2. **Feature story:** phpMyAdmin → Edit `is_featured` field
+3. **Add coordinates:** phpMyAdmin → Add `latitude`/`longitude`
+4. **View analytics:** Dashboard stats or phpMyAdmin → `site_analytics` table
 
 ---
 

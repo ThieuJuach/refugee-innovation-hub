@@ -79,7 +79,7 @@ This document summarizes the implementation of all MVP features for the Refugee 
   - Image URL
   - Additional Contact Information
 - ✅ Form validation
-- ✅ Submission to database (Supabase)
+- ✅ Submission to database (MySQL)
 - ✅ Success/error messaging
 - ✅ Analytics tracking
 
@@ -144,7 +144,7 @@ This document summarizes the implementation of all MVP features for the Refugee 
   - Event tracking
   - Story view tracking
   - Submission tracking
-- ✅ Supabase analytics table
+- ✅ MySQL analytics table
   - Custom event tracking
   - Story engagement metrics
   - Submission activity
@@ -158,7 +158,7 @@ This document summarizes the implementation of all MVP features for the Refugee 
 ### Location:
 - `index.html` - Google Analytics script
 - `js/app.js` - `trackAnalytics()` function
-- `supabase/migrations/` - Analytics table schema
+- `database/schema.sql` - Analytics table schema
 
 ---
 
@@ -198,8 +198,8 @@ This document summarizes the implementation of all MVP features for the Refugee 
 - Vanilla JavaScript (ES6+)
 
 ### Backend Services:
-- Firebase (Authentication)
-- Supabase (Database)
+- PHP (Authentication & API)
+- MySQL (Database)
 - Google Analytics (Analytics)
 
 ### Libraries:
@@ -245,8 +245,9 @@ This document summarizes the implementation of all MVP features for the Refugee 
 
 ## Security
 
-- ✅ Firebase Authentication
-- ✅ Supabase Row Level Security (RLS)
+- ✅ PHP session-based authentication
+- ✅ MySQL database access control
+- ✅ Prepared statements (SQL injection prevention)
 - ✅ Input validation
 - ✅ XSS protection
 - ✅ Secure API calls

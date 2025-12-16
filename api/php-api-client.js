@@ -168,7 +168,7 @@ class PHPAPIClient {
         });
     }
 
-    // Minimal Supabase-like adapter (keeps your current app code)
+    // Query builder for backwards compatibility
     from(table) {
         return {
             select: (cols='*') => {
@@ -238,4 +238,4 @@ class PHPAPIClient {
 
 // Export instance
 const phpApi = new PHPAPIClient();
-window.supabase = phpApi;
+window.api = phpApi;

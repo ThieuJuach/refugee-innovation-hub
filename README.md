@@ -38,7 +38,7 @@ A comprehensive microsite showcasing refugee-led innovation stories, built for J
    - Responsive design
 
 6. **Admin Dashboard**
-   - Authentication via Firebase
+   - Authentication via PHP/MySQL
    - View pending submissions
    - Approve/reject submissions
    - Analytics dashboard with key metrics
@@ -46,7 +46,7 @@ A comprehensive microsite showcasing refugee-led innovation stories, built for J
 
 7. **Analytics Integration**
    - Google Analytics tracking
-   - Supabase analytics events
+   - Database analytics events
    - Page view tracking
    - Story engagement metrics
    - Submission activity tracking
@@ -200,10 +200,11 @@ The application includes sample stories for demonstration. These are loaded auto
 
 ## 🔒 Security
 
-- Firebase Authentication for admin access
-- Supabase Row Level Security (RLS) policies
+- PHP session-based authentication for admin access
+- MySQL database access control
 - Input validation on forms
 - XSS protection through proper escaping
+- SQL injection prevention via prepared statements
 
 ## 📚 Documentation
 
@@ -248,9 +249,10 @@ The application includes sample stories for demonstration. These are loaded auto
 - Ensure internet connection
 
 ### Stories Not Appearing
-- Check Supabase connection
+- Check MySQL database connection
 - Verify database tables exist
 - Check browser console for errors
+- Ensure Apache and MySQL are running in XAMPP
 
 ### Authentication Issues
 - Check PHP sessions are working
