@@ -1179,109 +1179,15 @@ async function loadStories() {
         if (!error && data) {
             stories = data.map(story => ({
                 ...story,
-                // Map view_count to views for backward compatibility
                 views: story.view_count || story.views || 0
             }));
-        } else if (!data || data.length === 0) {
-            // Load sample data if database is empty
-            stories = getSampleStories();
+        } else {
+            stories = [];
         }
     } catch (error) {
         console.error('Error loading stories:', error);
-        // Fallback to sample data
-        stories = getSampleStories();
+        stories = [];
     }
-}
-
-// Sample stories for demonstration
-function getSampleStories() {
-    return [
-        {
-            id: 1,
-            title: "Digital Learning Platform for Refugee Children",
-            innovator_name: "Amina Hassan",
-            region: "East Africa",
-            theme: "Education",
-            description: "Amina created an innovative digital learning platform that provides quality education to refugee children in Kakuma camp. The platform works offline and includes curriculum in multiple languages, making education accessible even without consistent internet connectivity.",
-            impact: "Over 500 children have accessed quality education through this platform, with 80% showing improved literacy rates.",
-            location: "Kakuma, Kenya",
-            latitude: 3.7167,
-            longitude: 34.8667,
-            image_url: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800",
-            contact_email: "amina@example.com",
-            is_featured: true,
-            views: 0,
-            beneficiaries_count: 500
-        },
-        {
-            id: 2,
-            title: "Solar-Powered Water Purification System",
-            innovator_name: "Mohammed Al-Rashid",
-            region: "Middle East",
-            theme: "Health",
-            description: "Mohammed developed a low-cost, solar-powered water purification system that provides clean drinking water to refugee communities. The system uses locally available materials and can be maintained by community members.",
-            impact: "The system provides clean water to over 1,000 people daily, reducing waterborne diseases by 60%.",
-            location: "Zaatari, Jordan",
-            latitude: 32.3078,
-            longitude: 36.3275,
-            image_url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
-            contact_email: "mohammed@example.com",
-            is_featured: true,
-            views: 0,
-            beneficiaries_count: 1000
-        },
-        {
-            id: 3,
-            title: "Mobile App for Job Matching",
-            innovator_name: "Fatima Al-Zahra",
-            region: "Middle East",
-            theme: "Livelihoods",
-            description: "Fatima created a mobile application that connects refugee job seekers with local employers. The app includes skills assessment, resume building, and job matching features tailored to refugee needs.",
-            impact: "Over 300 refugees have found employment through this platform, improving their economic independence.",
-            location: "Beirut, Lebanon",
-            latitude: 33.8938,
-            longitude: 35.5018,
-            image_url: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800",
-            contact_email: "fatima@example.com",
-            is_featured: true,
-            views: 0,
-            beneficiaries_count: 300
-        },
-        {
-            id: 4,
-            title: "Community Garden Initiative",
-            innovator_name: "Jean-Baptiste Nkurunziza",
-            region: "East Africa",
-            theme: "Livelihoods",
-            description: "Jean-Baptiste established a community garden that provides fresh vegetables to refugee families while creating income opportunities. The garden uses sustainable farming techniques and trains community members.",
-            impact: "The garden feeds 200 families and generates income for 50 community members through vegetable sales.",
-            location: "Kigali, Rwanda",
-            latitude: -1.9441,
-            longitude: 30.0619,
-            image_url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800",
-            contact_email: "jean@example.com",
-            is_featured: false,
-            views: 0,
-            beneficiaries_count: 200
-        },
-        {
-            id: 5,
-            title: "Refugee Artisan Marketplace",
-            innovator_name: "Sara Ahmed",
-            region: "Southeast Asia",
-            theme: "Arts & Culture",
-            description: "Sara created an online marketplace that connects refugee artisans with global customers. The platform showcases traditional crafts and provides fair-trade opportunities for refugee communities.",
-            impact: "Over 100 artisans have sold their products globally, generating sustainable income and preserving cultural heritage.",
-            location: "Kuala Lumpur, Malaysia",
-            latitude: 3.1390,
-            longitude: 101.6869,
-            image_url: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800",
-            contact_email: "sara@example.com",
-            is_featured: true,
-            views: 0,
-            beneficiaries_count: 100
-        }
-    ];
 }
 
 // Load submissions from database
