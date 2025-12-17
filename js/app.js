@@ -805,6 +805,7 @@ async function renderDashboardPage() {
                                     <th>Innovator</th>
                                     <th>Region</th>
                                     <th>Theme</th>
+                                    <th>Location</th>
                                     <th>Views</th>
                                     <th>Actions</th>
                                 </tr>
@@ -816,9 +817,17 @@ async function renderDashboardPage() {
                                         <td>${story.innovator_name}</td>
                                         <td>${story.region}</td>
                                         <td>${story.theme}</td>
+                                        <td>
+                                            ${story.location}
+                                            ${story.latitude && story.longitude ?
+                                                `<span style="color: var(--emerald-600); font-size: 0.875rem; display: block;">📍 Mapped</span>` :
+                                                `<span style="color: var(--amber-600); font-size: 0.875rem; display: block;">⚠️ No coordinates</span>`
+                                            }
+                                        </td>
                                         <td>${story.view_count || story.views || 0}</td>
                                         <td class="action-buttons">
                                             <button class="btn-view" onclick="navigateTo('story', ${story.id})">View</button>
+                                            <button class="btn-edit" onclick="handleEditStory(${story.id})" style="background: var(--blue-600);">Edit Location</button>
                                             <button class="btn-delete" onclick="handleDeleteStory(${story.id}, '${story.title.replace(/'/g, "\\'")}')">Delete</button>
                                         </td>
                                     </tr>
@@ -998,6 +1007,169 @@ async function handleDeleteStory(id, title) {
 
 // Expose function globally
 window.handleDeleteStory = handleDeleteStory;
+
+// Handle edit story (add/update coordinates)
+async function handleEditStory(id) {
+    const story = stories.find(s => s.id === id);
+    if (!story) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'editModal';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+
+    modal.innerHTML = `
+        <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <h2 style="margin: 0 0 1.5rem 0;">Edit Story Location</h2>
+            <p style="color: var(--gray-600); margin-bottom: 1.5rem;"><strong>${story.title}</strong></p>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Current Location:</label>
+                <p style="color: var(--gray-700); background: var(--gray-100); padding: 0.75rem; border-radius: 6px;">${story.location}</p>
+            </div>
+
+            <div style="background: var(--blue-50); border: 1px solid var(--blue-200); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: var(--blue-800);">Auto-Geocode Location</p>
+                <p style="margin: 0 0 1rem 0; font-size: 0.875rem; color: var(--blue-700);">Click below to automatically find coordinates for this location</p>
+                <button id="geocodeBtn" class="btn btn-primary" style="width: 100%;">
+                    🌍 Find Coordinates Automatically
+                </button>
+                <div id="geocodeStatus" style="margin-top: 0.75rem; font-size: 0.875rem;"></div>
+            </div>
+
+            <form id="editLocationForm">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Latitude:</label>
+                    <input type="number" step="any" name="latitude" id="latitude" value="${story.latitude || ''}"
+                           placeholder="e.g., 40.7128" required
+                           style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 1rem;">
+                    <small style="color: var(--gray-600); font-size: 0.875rem;">Range: -90 to 90</small>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Longitude:</label>
+                    <input type="number" step="any" name="longitude" id="longitude" value="${story.longitude || ''}"
+                           placeholder="e.g., -74.0060" required
+                           style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 1rem;">
+                    <small style="color: var(--gray-600); font-size: 0.875rem;">Range: -180 to 180</small>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" id="cancelBtn" class="btn" style="background: var(--gray-500);">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Coordinates</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Handle geocoding
+    document.getElementById('geocodeBtn').addEventListener('click', async () => {
+        const statusDiv = document.getElementById('geocodeStatus');
+        const geocodeBtn = document.getElementById('geocodeBtn');
+
+        geocodeBtn.disabled = true;
+        geocodeBtn.textContent = '🔄 Searching...';
+        statusDiv.innerHTML = '<p style="color: var(--blue-600);">Searching for coordinates...</p>';
+
+        try {
+            const coords = await geocodeLocation(story.location);
+            if (coords) {
+                document.getElementById('latitude').value = coords.lat;
+                document.getElementById('longitude').value = coords.lon;
+                statusDiv.innerHTML = `<p style="color: var(--emerald-600);">✅ Found! Coordinates updated in the fields below.</p>`;
+            } else {
+                statusDiv.innerHTML = `<p style="color: var(--amber-600);">⚠️ Could not find coordinates. Try entering them manually.</p>`;
+            }
+        } catch (error) {
+            statusDiv.innerHTML = `<p style="color: var(--red-600);">❌ Error: ${error.message}</p>`;
+        } finally {
+            geocodeBtn.disabled = false;
+            geocodeBtn.textContent = '🌍 Find Coordinates Automatically';
+        }
+    });
+
+    // Handle form submission
+    document.getElementById('editLocationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const latitude = parseFloat(formData.get('latitude'));
+        const longitude = parseFloat(formData.get('longitude'));
+
+        // Validate coordinates
+        if (latitude < -90 || latitude > 90) {
+            alert('Latitude must be between -90 and 90');
+            return;
+        }
+        if (longitude < -180 || longitude > 180) {
+            alert('Longitude must be between -180 and 180');
+            return;
+        }
+
+        try {
+            const { data, error } = await window.api.updateStory(id, {
+                ...story,
+                latitude,
+                longitude
+            });
+
+            if (error) {
+                alert('Error updating coordinates: ' + error);
+                return;
+            }
+
+            alert('Coordinates updated successfully!');
+            document.body.removeChild(modal);
+            await loadStories();
+            render();
+        } catch (error) {
+            alert('Error updating coordinates: ' + error.message);
+        }
+    });
+
+    // Handle cancel
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+
+    // Close modal on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+}
+
+// Geocode location using Nominatim (OpenStreetMap)
+async function geocodeLocation(location) {
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`,
+            {
+                headers: {
+                    'User-Agent': 'Refugee Innovation Hub'
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lon: parseFloat(data[0].lon)
+            };
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Geocoding error:', error);
+        throw new Error('Failed to geocode location');
+    }
+}
+
+// Expose function globally
+window.handleEditStory = handleEditStory;
 
 // Load stories from database
 async function loadStories() {
