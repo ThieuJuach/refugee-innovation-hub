@@ -88,9 +88,9 @@ switch ($method) {
             $slug .= '-' . time();
         }
         
-        $sql = "INSERT INTO innovation_stories (title, slug, summary, description, location, region, theme, latitude, longitude, image_url, innovator_name, beneficiaries_count, contact_email, contact_info, is_featured) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+        $sql = "INSERT INTO innovation_stories (title, slug, summary, description, location, region, theme, latitude, longitude, image_url, innovator_name, impact, beneficiaries_count, contact_email, contact_info, is_featured)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         $summary = substr($data['description'], 0, 200);
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
@@ -105,10 +105,11 @@ switch ($method) {
             $data['longitude'] ?? null,
             $data['image_url'] ?? null,
             $data['innovator_name'],
+            $data['impact'] ?? null,
             $data['beneficiaries_count'] ?? 0,
             $data['contact_email'] ?? null,
             $data['contact_info'] ?? null,
-            $data['is_featured'] ?? false
+            $data['is_featured'] ?? 0
         ]);
         
         $id = $pdo->lastInsertId();
@@ -122,13 +123,13 @@ switch ($method) {
         $id = (int)$_GET['id'];
         $data = json_decode(file_get_contents('php://input'), true);
         
-        $sql = "UPDATE innovation_stories SET 
-                title = ?, description = ?, location = ?, region = ?, theme = ?, 
-                latitude = ?, longitude = ?, image_url = ?, innovator_name = ?, 
-                beneficiaries_count = ?, contact_email = ?, contact_info = ?, 
+        $sql = "UPDATE innovation_stories SET
+                title = ?, description = ?, location = ?, region = ?, theme = ?,
+                latitude = ?, longitude = ?, image_url = ?, innovator_name = ?, impact = ?,
+                beneficiaries_count = ?, contact_email = ?, contact_info = ?,
                 is_featured = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?";
-        
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $data['title'] ?? null,
@@ -140,10 +141,11 @@ switch ($method) {
             $data['longitude'] ?? null,
             $data['image_url'] ?? null,
             $data['innovator_name'] ?? null,
+            $data['impact'] ?? null,
             $data['beneficiaries_count'] ?? 0,
             $data['contact_email'] ?? null,
             $data['contact_info'] ?? null,
-            $data['is_featured'] ?? false,
+            $data['is_featured'] ?? 0,
             $id
         ]);
         

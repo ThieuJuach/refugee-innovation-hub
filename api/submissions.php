@@ -148,7 +148,7 @@ switch ($method) {
                     
                     // Insert into stories
                     $summary = substr($submission['description'], 0, 200);
-                    $insertStmt = $pdo->prepare("INSERT INTO innovation_stories (title, slug, summary, description, location, region, theme, image_url, innovator_name, impact, contact_email, contact_info, is_featured) 
+                    $insertStmt = $pdo->prepare("INSERT INTO innovation_stories (title, slug, summary, description, location, region, theme, image_url, innovator_name, impact, contact_email, contact_info, is_featured)
                                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                     $insertStmt->execute([
                         $submission['title'],
@@ -163,7 +163,7 @@ switch ($method) {
                         $submission['impact'] ?? 'Making a positive impact in the community.',
                         $submission['contact_email'],
                         $submission['contact_info'],
-                        false
+                        0
                     ]);
                     
                     // Track analytics
