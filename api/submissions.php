@@ -158,7 +158,7 @@ switch ($method) {
                         $submission['location'],
                         $submission['region'],
                         $submission['theme'],
-                        $submission['image_url'] ?? 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800',
+                        $submission['image_url'],
                         $submission['innovator_name'],
                         $submission['impact'] ?? 'Making a positive impact in the community.',
                         $submission['contact_email'],
