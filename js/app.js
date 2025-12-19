@@ -485,10 +485,10 @@ function renderSubmitStoryPage() {
                         </div>
 
                         <div class="form-group">
-                            <label>Or provide Image URL (optional)</label>
-                            <input type="url" name="image_url" id="imageUrlInput" placeholder="https://example.com/image.jpg" onchange="clearFileInput()">
+                            <label>Or provide Image URL</label>
+                            <input type="url" name="image_url" id="imageUrlInput" placeholder="https://example.com/image.jpg" oninput="clearFileInput()">
                             <p style="font-size: 0.875rem; color: var(--gray-600); margin-top: 0.5rem;">
-                                If you provide a URL, the uploaded file will be ignored
+                                You can provide either a file upload or an image URL (URL takes priority if both are provided)
                             </p>
                         </div>
 
@@ -521,12 +521,32 @@ function renderSubmitStoryPage() {
 function previewImage(event) {
     const file = event.target.files[0];
     if (file) {
+        // Validate file size
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            alert('File size exceeds 5MB limit. Please choose a smaller file.');
+            event.target.value = '';
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        const fileType = file.type.toLowerCase();
+        if (!allowedTypes.includes(fileType)) {
+            alert('Invalid file type. Please upload JPEG, PNG, GIF, or WebP images only.');
+            event.target.value = '';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = function(e) {
             const preview = document.getElementById('imagePreview');
             const previewImg = document.getElementById('previewImg');
             previewImg.src = e.target.result;
             preview.style.display = 'block';
+            // Clear URL input when file is selected
+            const urlInput = document.getElementById('imageUrlInput');
+            if (urlInput) urlInput.value = '';
         };
         reader.readAsDataURL(file);
     }
@@ -534,17 +554,22 @@ function previewImage(event) {
 
 // Clear image preview
 function clearImagePreview() {
-    document.getElementById('imageInput').value = '';
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('previewImg').src = '';
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+
+    if (imageInput) imageInput.value = '';
+    if (imagePreview) imagePreview.style.display = 'none';
+    if (previewImg) previewImg.src = '';
 }
 
 // Clear file input when URL is provided
 function clearFileInput() {
     const urlInput = document.getElementById('imageUrlInput');
-    if (urlInput.value) {
-        document.getElementById('imageInput').value = '';
-        document.getElementById('imagePreview').style.display = 'none';
+    if (urlInput && urlInput.value && urlInput.value.trim() !== '') {
+        const imageInput = document.getElementById('imageInput');
+        if (imageInput) imageInput.value = '';
+        clearImagePreview();
     }
 }
 
@@ -915,26 +940,27 @@ async function handleSubmitStory(event) {
     }
 
     try {
-        // Use fetch directly for FormData
-        const response = await fetch('http://localhost/refugee-innovation-hub/api/submissions.php', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        });
+        // Use the API client which handles the URL automatically
+        const { data, error } = await window.api.submitStory(formData);
 
-        const result = await response.json();
-
-        if (!response.ok || result.error) {
-            messageDiv.innerHTML = `<div class="alert alert-error">Error: ${result.error || 'Submission failed'}</div>`;
+        if (error) {
+            messageDiv.innerHTML = `<div class="alert alert-error">Error: ${error}</div>`;
+            console.error('Submission error:', error);
         } else {
             messageDiv.innerHTML = '<div class="alert alert-success">Thank you! Your story has been submitted and will be reviewed shortly.</div>';
             form.reset();
-            document.getElementById('imagePreview').style.display = 'none';
-            await loadSubmissions();
+            clearImagePreview();
+
+            // Reload submissions if admin is logged in
+            if (window.auth && window.auth.isAuthenticated()) {
+                await loadSubmissions();
+            }
+
             trackAnalytics('submission', { type: 'story_submission' });
         }
     } catch (error) {
-        messageDiv.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+        console.error('Submission exception:', error);
+        messageDiv.innerHTML = `<div class="alert alert-error">Error: ${error.message || 'Submission failed. Please try again.'}</div>`;
     }
 }
 

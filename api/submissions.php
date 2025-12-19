@@ -53,36 +53,62 @@ switch ($method) {
         }
         
         // Handle file upload if present
-        $imageUrl = $data['image_url'] ?? null;
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $imageUrl = null;
+
+        // Priority 1: Check if URL is provided (takes precedence)
+        if (!empty($data['image_url'])) {
+            $imageUrl = filter_var($data['image_url'], FILTER_VALIDATE_URL) ? $data['image_url'] : null;
+            if (!$imageUrl) {
+                sendError('Invalid image URL provided');
+            }
+        }
+        // Priority 2: Check if file is uploaded
+        elseif (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             // Process file upload
             $file = $_FILES['image'];
-            
+
             // Validate file type
             $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
             $fileType = mime_content_type($file['tmp_name']);
-            
-            if (in_array($fileType, $allowedTypes)) {
-                // Validate file size (max 5MB)
-                $maxSize = 5 * 1024 * 1024; // 5MB
-                if ($file['size'] <= $maxSize) {
-                    // Create uploads directory if it doesn't exist
-                    $uploadDir = __DIR__ . '/../uploads/stories/';
-                    if (!file_exists($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    
-                    // Generate unique filename
-                    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                    $filename = uniqid('story_', true) . '_' . time() . '.' . $extension;
-                    $filepath = $uploadDir . $filename;
-                    
-                    // Move uploaded file
-                    if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                        $imageUrl = '/uploads/stories/' . $filename;
-                    }
-                }
+
+            if (!in_array($fileType, $allowedTypes)) {
+                sendError('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.');
             }
+
+            // Validate file size (max 5MB)
+            $maxSize = 5 * 1024 * 1024; // 5MB
+            if ($file['size'] > $maxSize) {
+                sendError('File size exceeds 5MB limit.');
+            }
+
+            // Create uploads directory if it doesn't exist
+            $uploadDir = __DIR__ . '/../uploads/stories/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            // Generate unique filename
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = uniqid('story_', true) . '_' . time() . '.' . $extension;
+            $filepath = $uploadDir . $filename;
+
+            // Move uploaded file
+            if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                // Return path relative to the web server root
+                // Auto-detect project path from request URI
+                $requestUri = $_SERVER['REQUEST_URI'];
+                $scriptPath = dirname($_SERVER['SCRIPT_NAME']);
+                $projectPath = str_replace('/api', '', $scriptPath);
+
+                $imageUrl = $projectPath . '/uploads/stories/' . $filename;
+            } else {
+                sendError('Failed to save uploaded file.');
+            }
+        }
+
+        // Require either file or URL
+        if (!$imageUrl) {
+            sendError('Please provide an image file or URL.');
         }
         
         $sql = "INSERT INTO story_submissions (title, description, location, region, theme, innovator_name, impact, contact_email, contact_info, image_url, status) 

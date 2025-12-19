@@ -50,8 +50,13 @@ if (!move_uploaded_file($file['tmp_name'], $filepath)) {
     sendError('Failed to save uploaded file.');
 }
 
-// Return file URL (relative to project root)
-$fileUrl = '/uploads/stories/' . $filename;
+// Return path relative to the web server root
+// Auto-detect project path from request URI
+$requestUri = $_SERVER['REQUEST_URI'];
+$scriptPath = dirname($_SERVER['SCRIPT_NAME']);
+$projectPath = str_replace('/api', '', $scriptPath);
+
+$fileUrl = $projectPath . '/uploads/stories/' . $filename;
 
 sendResponse([
     'success' => true,

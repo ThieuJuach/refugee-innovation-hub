@@ -6,8 +6,15 @@
  */
 
 class PHPAPIClient {
-    constructor(baseUrl = 'http://localhost/refugee-innovation-hub/api') {
-        this.baseUrl = baseUrl;
+    constructor(baseUrl = null) {
+        // Auto-detect base URL if not provided
+        if (!baseUrl) {
+            const path = window.location.pathname;
+            const projectPath = path.substring(0, path.lastIndexOf('/') + 1);
+            this.baseUrl = `${window.location.origin}${projectPath}api`;
+        } else {
+            this.baseUrl = baseUrl;
+        }
     }
 
     async request(endpoint, options = {}) {
@@ -114,6 +121,18 @@ class PHPAPIClient {
         return this.request('/submissions.php', {
             method: 'POST',
             body: submissionData
+        });
+    }
+
+    async submitStory(submissionData) {
+        // Alias for createSubmission for backward compatibility
+        return this.createSubmission(submissionData);
+    }
+
+    async uploadFile(formData) {
+        return this.request('/upload.php', {
+            method: 'POST',
+            body: formData
         });
     }
 
